@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using System.Drawing.Imaging;
+
 namespace SnakeDB
 {
     public partial class Form1 : Form
@@ -17,231 +19,258 @@ namespace SnakeDB
         private List<Circle> Snake = new List<Circle>();
         private Circle food = new Circle();
 
+        int maxWidth;
+        int maxHeight;
 
-        //Crate a single Circle class we calling Food This is called instanciation 
+        int score;
+        int highScore;
+
+        Random rand = new Random();
+
+        bool goLeft, goRight, goDown, goUp;
         public Form1()
         {
             InitializeComponent();
             new Settings(); // Link the Settings Class to this Form.
 
-            gameTimer.Interval = 1000 / Settings.Speed; //set the game speed to 1000 devided by the speed we set in settings.
-
-            gameTimer.Tick += updateScreen;
-            gameTimer.Start(); //start the game timer, In this simple game we are using the Timer as a game loop.
         }
 
-        private void updateScreen(object sender, EventArgs e)
+
+        private void Keyisup(object sender, KeyEventArgs e)
         {
-            //each time the timer tics it will run this function
-            if (Settings.GameOver == true)
+            if (e.KeyCode == Keys.Left)
             {
-                //if the game over is true and the player presses enter
-                //we will run the startGame() function
-                if (Input.KeyPress(Keys.Enter))
-                {
-                    startGame();
-                }
+                goLeft = false;
             }
-            else
+            if (e.KeyCode == Keys.Right)
             {
-                //if the game is not over then the following will be executed
-
-                if (Input.KeyPress(Keys.Right) && Settings.direction != Directions.Left)
-                {
-                    Settings.direction = Directions.Right;
-                } 
-                else if (Input.KeyPress(Keys.Left) && Settings.direction != Directions.Right)
-                {
-                    Settings.direction = Directions.Left;
-                }
-                else if (Input.KeyPress(Keys.Up) && Settings.direction != Directions.Down)
-                {
-                    Settings.direction = Directions.Up;
-                }
-                else if (Input.KeyPress(Keys.Down) && Settings.direction != Directions.Up)
-                {
-                    Settings.direction = Directions.Down;
-                }
-                movePlayer();//Jump to movePlayer function, The way else if statments work is as soon as a condition is met
-                //it will jump out of else.
+                goRight = false;
             }
-            picCanvas.Invalidate();//refresh the picture box we call picCanvas and update the graphics.
+            if (e.KeyCode == Keys.Up)
+            {
+                goUp = false;
+            }
+            if (e.KeyCode == Keys.Down)
+            {
+                goDown = false;
+            }
         }
 
-        private void keyisup(object sender, KeyEventArgs e)
+        private void Keyisdown(object sender, KeyEventArgs e)
         {
-            //the keyUp event will trigger the state change in Input Class
-            Input.changeState(e.KeyCode, false);
+            if (e.KeyCode == Keys.Left && Settings.directions != "right")
+            {
+                goLeft = true;
+            }
+            if (e.KeyCode == Keys.Right && Settings.directions != "left")
+            {
+                goRight = true;
+            }
+            if (e.KeyCode == Keys.Up && Settings.directions != "down")
+            {
+                goUp = true;
+            }
+            if (e.KeyCode == Keys.Down && Settings.directions != "up")
+            {
+                goDown = true;
+            }
         }
 
-        private void keyisdown(object sender, KeyEventArgs e)
-        {
-            //The keyDown event will trigger the state change in the Input Class
-            Input.changeState(e.KeyCode, true);
-        }
-
-        private void updateGraphics(object sender, PaintEventArgs e)
+        private void UpdateGraphics(object sender, PaintEventArgs e)
         {
             // this is where we will see the snake and its parts moving
 
-            Graphics canvas = e.Graphics; // create a new graphics class called canvas
+            Graphics canvas = e.Graphics;
 
-            if (Settings.GameOver == false)
-            {
-                // if the game is not over then we do the following
+            Brush snakeColour;
 
-                Brush snakeColour; // create a new brush called snake colour
-
-                // run a loop to check the snake parts
-                for (int i = 0; i < Snake.Count; i++)
-                {
-                    if (i == 0)
-                    {
-                        // colour the head of the snake black
-                        snakeColour = Brushes.Black;
-                    }
-                    else
-                    {
-                        // the rest of the body can be green
-                        snakeColour = Brushes.Green;
-                    }
-                    //draw snake body and head
-                    canvas.FillEllipse(snakeColour,
-                                        new Rectangle(
-                                            Snake[i].X * Settings.Width,
-                                            Snake[i].Y * Settings.Height,
-                                            Settings.Width, Settings.Height
-                                            ));
-
-                    // draw food
-                    canvas.FillEllipse(Brushes.Red,
-                                        new Rectangle(
-                                            food.X * Settings.Width,
-                                            food.Y * Settings.Height,
-                                            Settings.Width, Settings.Height
-                                            ));
-                }
-            }
-            else
-            {
-                // this part will run when the game is over
-                // it will show the game over text and make the label 3 visible on the screen
-
-                string gameOver = "Game Over \n" + "Final Score is " + Settings.Score + "\n Press enter to Restart \n";
-                lblEndGame.Text = gameOver;
-                lblEndGame.Visible = true;
-            }
-        }
-
-        private void startGame()
-        {
-            // this is the start game function
-
-            lblEndGame.Visible = false; // set label 3 to invisible
-            new Settings(); // create a new instance of settings
-            Snake.Clear(); // clear all snake parts
-            Circle head = new Circle { X = 10, Y = 5 }; // create a new head for the snake
-            Snake.Add(head); // add the gead to the snake array
-
-            lblScrNum.Text = Settings.Score.ToString(); // show the score to the label 2
-
-            generateFood(); // run the generate food function
-        }
-
-        private void movePlayer()
-        {
-            //this the the loop for the snakes parts
-            for (int i = Snake.Count - 1; i > 0; i--)
+            for (int i = 0; i < Snake.Count; i++)
             {
                 if (i == 0)
                 {
-                    //Move the body with the head
-                    switch (Settings.direction)
-                    {
-                        case Directions.Right:
-                            Snake[i].X++;
-                            break;
-                            case Directions.Left:
-                            Snake[i].X--;
-                            break;
-                        case Directions.Up:
-                            Snake[i].Y--;
-                            break;
-                        case Directions.Down:
-                            Snake[i].Y++;
-                            break;
-                    }
-
-                    //restrict the snake from leaving the canvas
-                    int maxXpos = picCanvas.Size.Width / Settings.Width;
-                    int maxYpos = picCanvas.Size.Height / Settings.Height;
-                    if (Snake[i].X < 0 || Snake[i].Y < 0 || Snake[i].X > maxXpos || Snake[i].Y > maxYpos)
-                    {
-                        die();
-                    }
-
-                    //detect collition with the snakes body
-                    for (int j = 0; j < Snake.Count; j++)
-                    {
-                        if (Snake[i].X == Snake[j].X && Snake[i].Y == Snake[j].Y)
-                        {
-                            //if yes then die
-                            die();
-                        }
-                    }
-                    
-
-                    //detect eating food
-                    if (Snake[0].X == food.X && Snake[0].Y == food.Y)
-                    {
-                        //eat the food fuction is fired
-                        eat();
-                    }
+                    snakeColour = Brushes.Black;
                 }
                 else
                 {
-                    //if no collitions keep moving the Snakes head and the body will follow
+                    snakeColour = Brushes.DarkGreen;
+                }
+
+                canvas.FillEllipse(snakeColour, new Rectangle
+                    (
+                    Snake[i].X * Settings.Width,
+                    Snake[i].Y * Settings.Height,
+                    Settings.Width, Settings.Height
+                    ));
+            }
+
+
+            canvas.FillEllipse(Brushes.DarkRed, new Rectangle
+            (
+            food.X * Settings.Width,
+            food.Y * Settings.Height,
+            Settings.Width, Settings.Height
+            ));
+        }
+
+        private void StartGame()
+        {
+            RestartGame();
+        }
+
+        private void GameTimer_Tick(object sender, EventArgs e)
+        {
+            // setting the directions
+
+            if (goLeft)
+            {
+                Settings.directions = "left";
+            }
+            if (goRight)
+            {
+                Settings.directions = "right";
+            }
+            if (goDown)
+            {
+                Settings.directions = "down";
+            }
+            if (goUp)
+            {
+                Settings.directions = "up";
+            }
+            // end of directions
+
+            for (int i = Snake.Count - 1; i >= 0; i--)
+            {
+                if (i == 0)
+                {
+
+                    switch (Settings.directions)
+                    {
+                        case "left":
+                            Snake[i].X--;
+                            break;
+                        case "right":
+                            Snake[i].X++;
+                            break;
+                        case "down":
+                            Snake[i].Y++;
+                            break;
+                        case "up":
+                            Snake[i].Y--;
+                            break;
+                    }
+
+                    if (Snake[i].X < 0)
+                    {
+                        Snake[i].X = maxWidth;
+                    }
+                    if (Snake[i].X > maxWidth)
+                    {
+                        Snake[i].X = 0;
+                    }
+                    if (Snake[i].Y < 0)
+                    {
+                        Snake[i].Y = maxHeight;
+                    }
+                    if (Snake[i].Y > maxHeight)
+                    {
+                        Snake[i].Y = 0;
+                    }
+
+
+                    if (Snake[i].X == food.X && Snake[i].Y == food.Y)
+                    {
+                        EatFood();
+                    }
+
+                    for (int j = 1; j < Snake.Count; j++)
+                    {
+
+                        if (Snake[i].X == Snake[j].X && Snake[i].Y == Snake[j].Y)
+                        {
+                            GameOver();
+                        }
+
+                    }
+
+
+                }
+                else
+                {
                     Snake[i].X = Snake[i - 1].X;
                     Snake[i].Y = Snake[i - 1].Y;
                 }
+                picCanvas.Invalidate();
             }
         }
 
-        private void generateFood()
+        private void EatFood()
         {
-            int maxXpos = picCanvas.Size.Width / Settings.Width;
-            int maxYpos = picCanvas.Size.Height / Settings.Height;
+            score += 1;
 
-            Random rnd = new Random();
-            food = new Circle { X = rnd.Next(0, maxXpos), Y = rnd.Next(0, maxYpos) };
-        }
-
-        private void eat()
-        {
-            // add a part to body
+            lblScrNum.Text = "Score: " + score;
 
             Circle body = new Circle
             {
                 X = Snake[Snake.Count - 1].X,
                 Y = Snake[Snake.Count - 1].Y
-
             };
 
-            Snake.Add(body); // add the part to the snakes array
-            Settings.Score += Settings.Points; // increase the score for the game
-            lblScrNum.Text = Settings.Score.ToString(); // show the score on the label 2
-            generateFood(); // run the generate food function
+            Snake.Add(body);
+
+            food = new Circle { X = rand.Next(2, maxWidth), Y = rand.Next(2, maxHeight) };
         }
 
-        private void die()
+        private void startButton_Click(object sender, EventArgs e)
         {
-            // change the game over Boolean to true
-            Settings.GameOver = true;
+            RestartGame();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void Button1_Click(object sender, EventArgs e)
         {
-            startGame();
+            StartGame();
+        }
+
+        private void RestartGame()
+        {
+            maxWidth = picCanvas.Width / Settings.Width - 1;
+            maxHeight = picCanvas.Height / Settings.Height - 1;
+
+            Snake.Clear();
+
+            startButton.Enabled = false;
+            snapButton.Enabled = false;
+            score = 0;
+            lblScrNum.Text = "Score: " + score;
+
+            Circle head = new Circle { X = 10, Y = 5 };
+            Snake.Add(head); // adding the head part of the snake to the list
+
+            for (int i = 0; i < 100; i++)
+            {
+                Circle body = new Circle();
+                Snake.Add(body);
+            }
+
+            food = new Circle { X = rand.Next(2, maxWidth), Y = rand.Next(2, maxHeight) };
+
+            gameTimer.Start();
+        }
+
+        private void GameOver()
+        {
+            gameTimer.Stop();
+            startButton.Enabled = true;
+            snapButton.Enabled = true;
+
+            if (score > highScore)
+            {
+                highScore = score;
+
+                txtHighScore.Text = "High Score: " + Environment.NewLine + highScore;
+                txtHighScore.ForeColor = Color.Maroon;
+                txtHighScore.TextAlign = ContentAlignment.MiddleCenter;
+            }
         }
     }
 }

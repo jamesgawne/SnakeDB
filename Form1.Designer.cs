@@ -34,7 +34,9 @@
             this.lblScrNum = new System.Windows.Forms.Label();
             this.lblEndGame = new System.Windows.Forms.Label();
             this.gameTimer = new System.Windows.Forms.Timer(this.components);
-            this.button1 = new System.Windows.Forms.Button();
+            this.startButton = new System.Windows.Forms.Button();
+            this.snapButton = new System.Windows.Forms.Button();
+            this.txtHighScore = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picCanvas)).BeginInit();
             this.SuspendLayout();
             // 
@@ -46,7 +48,7 @@
             this.picCanvas.Size = new System.Drawing.Size(541, 560);
             this.picCanvas.TabIndex = 0;
             this.picCanvas.TabStop = false;
-            this.picCanvas.Paint += new System.Windows.Forms.PaintEventHandler(this.updateGraphics);
+            this.picCanvas.Paint += new System.Windows.Forms.PaintEventHandler(this.UpdateGraphics);
             // 
             // lblScore
             // 
@@ -80,30 +82,55 @@
             this.lblEndGame.TabIndex = 3;
             this.lblEndGame.Text = "End Text";
             // 
-            // button1
+            // gameTimer
             // 
-            this.button1.Location = new System.Drawing.Point(696, 172);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 4;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.gameTimer.Tick += new System.EventHandler(this.GameTimer_Tick);
+            // 
+            // startButton
+            // 
+            this.startButton.Location = new System.Drawing.Point(633, 88);
+            this.startButton.Name = "startButton";
+            this.startButton.Size = new System.Drawing.Size(75, 23);
+            this.startButton.TabIndex = 4;
+            this.startButton.Text = "Start Game";
+            this.startButton.UseVisualStyleBackColor = true;
+            this.startButton.Click += new System.EventHandler(this.startButton_Click);
+            // 
+            // snapButton
+            // 
+            this.snapButton.Location = new System.Drawing.Point(633, 137);
+            this.snapButton.Name = "snapButton";
+            this.snapButton.Size = new System.Drawing.Size(75, 23);
+            this.snapButton.TabIndex = 5;
+            this.snapButton.Text = "Snap";
+            this.snapButton.UseVisualStyleBackColor = true;
+            // 
+            // txtHighScore
+            // 
+            this.txtHighScore.AutoSize = true;
+            this.txtHighScore.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtHighScore.Location = new System.Drawing.Point(629, 200);
+            this.txtHighScore.Name = "txtHighScore";
+            this.txtHighScore.Size = new System.Drawing.Size(121, 24);
+            this.txtHighScore.TabIndex = 6;
+            this.txtHighScore.Text = "High Score:";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(909, 631);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.txtHighScore);
+            this.Controls.Add(this.snapButton);
+            this.Controls.Add(this.startButton);
             this.Controls.Add(this.lblEndGame);
             this.Controls.Add(this.lblScrNum);
             this.Controls.Add(this.lblScore);
             this.Controls.Add(this.picCanvas);
             this.Name = "Form1";
             this.Text = "SnakeDB";
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.keyisdown);
-            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.keyisup);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Keyisdown);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Keyisup);
             ((System.ComponentModel.ISupportInitialize)(this.picCanvas)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -117,7 +144,9 @@
         private System.Windows.Forms.Label lblScrNum;
         private System.Windows.Forms.Label lblEndGame;
         private System.Windows.Forms.Timer gameTimer;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button startButton;
+        private System.Windows.Forms.Button snapButton;
+        private System.Windows.Forms.Label txtHighScore;
     }
 }
 

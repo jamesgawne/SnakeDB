@@ -12,7 +12,7 @@ namespace SnakeDB
     class Input
     {
         //Creates a new instance of the Hashtable Class.
-        private static Hashtable keyTable = new Hashtable();
+        private static readonly Hashtable keyTable = new Hashtable();
         
         public static bool KeyPress(Keys key)
         {
@@ -27,7 +27,7 @@ namespace SnakeDB
             return (bool)keyTable[key];
         }
 
-        public static void changeState(Keys key, bool state)
+        public static void ChangeState(Keys key, bool state)
         {
             //this functin will change thew state of the keys
             //this function takes two augumnets (key & state)
